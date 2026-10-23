@@ -1,0 +1,411 @@
+:root {
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --dark: #0f172a;
+  --gray-text: #64748b;
+  --gray-border: #e2e8f0;
+  --gray-bg: #f8fafc;
+  --white: #ffffff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+body {
+  background-color: var(--gray-bg);
+  color: var(--dark);
+  min-height: 100vh;
+  display: flex;
+}
+
+/* =========================
+           LAYOUT UTAMA
+        ========================= */
+.split-layout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* =========================
+           PANEL KIRI (BRANDING)
+        ========================= */
+.brand-panel {
+  flex: 1.2;
+  background-color: #0b0f19;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4rem;
+  color: var(--white);
+}
+
+/* Efek Ambient Glow / Orbs */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+  animation: float 10s infinite ease-in-out alternate;
+}
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: #4f46e5;
+  top: -100px;
+  left: -100px;
+}
+.orb-2 {
+  width: 300px;
+  height: 300px;
+  background: #ec4899;
+  bottom: -50px;
+  right: -50px;
+  animation-delay: -5s;
+}
+.orb-3 {
+  width: 250px;
+  height: 250px;
+  background: #06b6d4;
+  top: 40%;
+  left: 20%;
+  animation-duration: 12s;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+}
+
+.brand-content {
+  position: relative;
+  z-index: 2;
+}
+
+.logo-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 20px;
+  border-radius: 100px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo-icon {
+  width: 24px;
+  height: 24px;
+  color: #38bdf8;
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.brand-title {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -1.5px;
+}
+
+.brand-title span {
+  background: linear-gradient(to right, #818cf8, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-desc {
+  font-size: 1.125rem;
+  color: #94a3b8;
+  max-width: 450px;
+  line-height: 1.7;
+}
+
+.brand-footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  color: #cbd5e1;
+}
+
+.pulse-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* =========================
+           PANEL KANAN (FORM)
+        ========================= */
+.form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--gray-bg);
+  position: relative;
+}
+
+.form-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--white);
+  padding: 3rem;
+  border-radius: 24px;
+  box-shadow:
+    0 20px 40px rgba(15, 23, 42, 0.06),
+    0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.form-header {
+  margin-bottom: 2.5rem;
+}
+
+.form-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+}
+
+.form-subtitle {
+  color: var(--gray-text);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Custom Floating Label Inputs */
+.input-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #94a3b8;
+  transition: color 0.3s;
+  pointer-events: none;
+}
+
+.input-field {
+  width: 100%;
+  padding: 1.2rem 1.2rem 1.2rem 3rem;
+  border: 2px solid var(--gray-border);
+  border-radius: 14px;
+  font-size: 1rem;
+  color: var(--dark);
+  background: transparent;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input-label {
+  position: absolute;
+  left: 3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--white);
+  padding: 0 0.4rem;
+  color: #94a3b8;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+/* Interaksi Input */
+.input-field:focus,
+.input-field:not(:placeholder-shown) {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.input-field:focus ~ .input-icon,
+.input-field:not(:placeholder-shown) ~ .input-icon {
+  color: var(--primary);
+}
+
+.input-field:focus ~ .input-label,
+.input-field:not(:placeholder-shown) ~ .input-label {
+  top: 0;
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Tombol Login */
+.btn-submit {
+  width: 100%;
+  padding: 1.2rem;
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.btn-submit:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.25);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+}
+
+.system-info {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.system-info svg {
+  width: 16px;
+  height: 16px;
+}
+
+.error-alert {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: shake 0.3s ease;
+}
+
+.error-alert::before {
+  content: "⚠";
+  font-size: 18px;
+}
+
+/* =========================
+           RESPONSIVE DESIGN
+        ========================= */
+@media (max-width: 992px) {
+  .split-layout {
+    flex-direction: column;
+  }
+
+  .brand-panel {
+    flex: none;
+    padding: 3rem 2rem;
+    min-height: 45vh;
+  }
+
+  .brand-title {
+    font-size: 2.8rem;
+  }
+
+  .form-panel {
+    align-items: flex-start;
+    padding: 0 1.5rem 3rem 1.5rem;
+  }
+
+  /* Efek kartu menumpuk (overlapping) di mobile */
+  .form-card {
+    max-width: 100%;
+    margin-top: -4rem;
+    z-index: 10;
+    padding: 2.5rem 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-title {
+    font-size: 2.2rem;
+  }
+  .brand-desc {
+    font-size: 1rem;
+  }
+  .logo-wrapper {
+    margin-bottom: 2rem;
+  }
+  .form-card {
+    padding: 2rem 1.5rem;
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  50% {
+    transform: translateX(5px);
+  }
+
+  75% {
+    transform: translateX(-5px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
