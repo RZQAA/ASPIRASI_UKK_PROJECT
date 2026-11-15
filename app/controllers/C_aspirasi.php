@@ -379,7 +379,13 @@ if ($aksi == "simpan_rating") {
         }
 
         // Simpan rating + pindahkan ke histori
-        $update = $model->simpanRating($id_aspirasi, $rating);
+      $id_siswa = $_SESSION['siswa']['id_siswa'];
+
+        $update = $model->simpanRating(
+        $id_aspirasi,
+        $id_siswa,
+        $rating
+    );
 
         // Jika berhasil
         if ($update) {

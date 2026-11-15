@@ -157,54 +157,150 @@ class M_Aspirasi
 
 
     // Menampilkan semua aspirasi yang masih aktif
-    public function tampilSemua()
-    {
-        $query = "SELECT 
-                    a.*,
-                    s.nama_siswa,
-                    k.nama_kategori
-                  FROM aspirasi a
-                  JOIN siswa s 
-                    ON a.id_siswa = s.id_siswa
-                  LEFT JOIN kategori k 
-                    ON a.id_kategori = k.id_kategori
-                  WHERE a.status != 'Selesai'
-                  ORDER BY 
-                    CASE
-                        WHEN a.status = 'Menunggu' THEN 1
-                        WHEN a.status = 'Diproses' THEN 2
-                        ELSE 3
-                    END,
-                    a.tanggal_input DESC";
+// Menampilkan semua aspirasi dengan filter
+public function tampilSemua($filter = [])
+{
+    $query = "SELECT
+                a.*,
+                s.nama_siswa,
+                k.nama_kategori
+              FROM aspirasi a
+              JOIN siswa s
+                ON a.id_siswa = s.id_siswa
+              LEFT JOIN kategori k
+                ON a.id_kategori = k.id_kategori
+              WHERE NOT EXISTS (
+                  SELECT 1
+                  FROM histori_aspirasi h
+                  WHERE h.id_aspirasi = a.id_aspirasi
+              )";
 
-        return $this->db->query($query);
+    $types = "";
+    $params = [];
+
+    // Filter berdasarkan tanggal
+    if (!empty($filter['tanggal'])) {
+        $tanggal = $filter['tanggal'];
+
+        $query .= " AND DATE(a.tanggal_input) = ?";
+        $types .= "s";
+        $params[] = $tanggal;
     }
 
+    // Filter berdasarkan bulan
+    if (!empty($filter['bulan'])) {
+        $bulan = $filter['bulan'];
 
-    // Menghitung statistik dashboard
-    public function hitungStatistik()
-    {
-        $stats = [
-
-            'total' => $this->db->query(
-                "SELECT COUNT(*) as jml FROM aspirasi"
-            )->fetch_assoc()['jml'],
-
-            'menunggu' => $this->db->query(
-                "SELECT COUNT(*) as jml FROM aspirasi WHERE status = 'Menunggu'"
-            )->fetch_assoc()['jml'],
-
-            'proses' => $this->db->query(
-                "SELECT COUNT(*) as jml FROM aspirasi WHERE status = 'DiProses'"
-            )->fetch_assoc()['jml'],
-
-            'selesai' => $this->db->query(
-                "SELECT COUNT(*) as jml FROM aspirasi WHERE status = 'Selesai'"
-            )->fetch_assoc()['jml']
-        ];
-
-        return $stats;
+        $query .= " AND DATE_FORMAT(a.tanggal_input, '%Y-%m') = ?";
+        $types .= "s";
+        $params[] = $bulan;
     }
+
+    // Filter berdasarkan siswa
+    if (!empty($filter['id_siswa'])) {
+        $id_siswa = (int) $filter['id_siswa'];
+
+        $query .= " AND a.id_siswa = ?";
+        $types .= "i";
+        $params[] = $id_siswa;
+    }
+
+    // Filter berdasarkan kategori
+    if (!empty($filter['id_kategori'])) {
+        $id_kategori = (int) $filter['id_kategori'];
+
+        $query .= " AND a.id_kategori = ?";
+        $types .= "i";
+        $params[] = $id_kategori;
+    }
+
+    // Urutan aspirasi
+    $query .= " ORDER BY
+                CASE
+                    WHEN a.status = 'Menunggu' THEN 1
+                    WHEN a.status = 'Diproses' THEN 2
+                    WHEN a.status = 'Selesai' THEN 3
+                    ELSE 4
+                END,
+                a.tanggal_input DESC";
+
+    $stmt = $this->db->prepare($query);
+
+    if (!$stmt) {
+        return false;
+    }
+
+    // Mengikat parameter jika ada filter
+    if (!empty($params)) {
+        $bindParams = [$types];
+
+        foreach ($params as $key => $value) {
+            $bindParams[] = &$params[$key];
+        }
+
+        call_user_func_array(
+            [$stmt, 'bind_param'],
+            $bindParams
+        );
+    }
+
+    if (!$stmt->execute()) {
+        $stmt->close();
+        return false;
+    }
+
+    return $stmt->get_result();
+}
+
+
+// Mengambil daftar siswa untuk pilihan filter
+public function ambilSiswaFilter()
+{
+    return $this->db->query(
+        "SELECT id_siswa, nama_siswa
+         FROM siswa
+         ORDER BY nama_siswa ASC"
+    );
+}
+
+
+// Mengambil daftar kategori untuk pilihan filter
+public function ambilKategoriFilter()
+{
+    return $this->db->query(
+        "SELECT id_kategori, nama_kategori
+         FROM kategori
+         ORDER BY nama_kategori ASC"
+    );
+}
+
+
+   // Menghitung statistik dashboard
+public function hitungStatistik()
+{
+    $stats = [
+        'total' => $this->db->query(
+            "SELECT COUNT(*) AS jml FROM aspirasi"
+        )->fetch_assoc()['jml'],
+
+        'menunggu' => $this->db->query(
+            "SELECT COUNT(*) AS jml FROM aspirasi
+             WHERE status = 'Menunggu'"
+        )->fetch_assoc()['jml'],
+
+        'proses' => $this->db->query(
+            "SELECT COUNT(*) AS jml FROM aspirasi
+             WHERE status = 'Diproses'"
+        )->fetch_assoc()['jml'],
+
+        'selesai' => $this->db->query(
+            "SELECT COUNT(*) AS jml FROM aspirasi
+             WHERE status = 'Selesai'"
+        )->fetch_assoc()['jml']
+    ];
+
+    return $stats;
+}
 
 
     // Guru memberikan tanggapan ke aspirasi
@@ -284,67 +380,115 @@ class M_Aspirasi
 
 
     // Siswa memberikan rating pada aspirasi yang sudah selesai
-    public function simpanRating($id_aspirasi, $rating)
-    {
-        // Ambil data aspirasi
-        $query = "SELECT
-                    a.id_aspirasi,
-                    a.id_siswa,
-                    a.id_kategori,
-                    a.id_admin,
-                    a.judul,
-                    a.isi_aspirasi,
-                    a.foto,
-                    a.status,
-                    a.feedback,
-                    a.tanggal_input
-                  FROM aspirasi a
-                  WHERE a.id_aspirasi = '$id_aspirasi'
-                  AND a.status = 'Selesai'";
+    // Menyimpan rating dan memindahkan aspirasi ke histori
+public function simpanRating($id_aspirasi, $id_siswa, $rating)
+{
+    // Validasi rating
+    if (
+        !is_numeric($rating) ||
+        $rating < 0.5 ||
+        $rating > 5 ||
+        fmod((float) $rating, 0.5) != 0
+    ) {
+        return false;
+    }
 
-        $result = $this->db->query($query);
+    // Mulai transaksi
+    $this->db->begin_transaction();
 
-        if (!$result || $result->num_rows == 0) {
-            return false;
+    try {
+
+        // Ambil data aspirasi milik siswa yang sudah selesai
+        $stmt = $this->db->prepare(
+            "SELECT *
+             FROM aspirasi
+             WHERE id_aspirasi = ?
+             AND id_siswa = ?
+             AND status = 'Selesai'
+             FOR UPDATE"
+        );
+
+        $stmt->bind_param("ii", $id_aspirasi, $id_siswa);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 0) {
+            throw new Exception("Aspirasi tidak ditemukan atau belum selesai.");
         }
 
         $data = $result->fetch_assoc();
+        $stmt->close();
 
-        // Masukkan data lengkap ke histori
-        $insert = "INSERT INTO histori_aspirasi (
-                    id_aspirasi,
-                    id_siswa,
-                    id_kategori,
-                    id_admin,
-                    judul,
-                    isi_aspirasi,
-                    foto,
-                    status,
-                    feedback,
-                    rating,
-                    tanggal_input,
-                    tanggal_selesai
-                ) VALUES (
-                    '{$data['id_aspirasi']}',
-                    '{$data['id_siswa']}',
-                    '{$data['id_kategori']}',
-                    " . ($data['id_admin'] !== null ? "'{$data['id_admin']}'" : "NULL") . ",
-                    '{$data['judul']}',
-                    '{$data['isi_aspirasi']}',
-                    '{$data['foto']}',
-                    '{$data['status']}',
-                    '{$data['feedback']}',
-                    '$rating',
-                    '{$data['tanggal_input']}',
-                    NOW()
-                )";
+        // Simpan data ke histori
+        $stmt = $this->db->prepare(
+            "INSERT INTO histori_aspirasi (
+                id_aspirasi,
+                id_siswa,
+                id_kategori,
+                id_admin,
+                judul,
+                isi_aspirasi,
+                foto,
+                status,
+                feedback,
+                rating,
+                tanggal_input,
+                tanggal_selesai
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())"
+        );
 
-        if (!$this->db->query($insert)) {
-            return false;
+        $stmt->bind_param(
+            "iiiisssssds",
+            $data['id_aspirasi'],
+            $data['id_siswa'],
+            $data['id_kategori'],
+            $data['id_admin'],
+            $data['judul'],
+            $data['isi_aspirasi'],
+            $data['foto'],
+            $data['status'],
+            $data['feedback'],
+            $rating,
+            $data['tanggal_input']
+        );
+
+        if (!$stmt->execute()) {
+            throw new Exception("Gagal menyimpan histori.");
         }
 
+        $stmt->close();
+
+        // Hapus aspirasi aktif setelah histori berhasil disimpan
+        $stmt = $this->db->prepare(
+            "DELETE FROM aspirasi
+             WHERE id_aspirasi = ?
+             AND id_siswa = ?
+             AND status = 'Selesai'"
+        );
+
+        $stmt->bind_param("ii", $id_aspirasi, $id_siswa);
+        $stmt->execute();
+
+        if ($stmt->affected_rows !== 1) {
+            throw new Exception("Gagal menghapus aspirasi aktif.");
+        }
+
+        $stmt->close();
+
+        // Simpan seluruh perubahan
+        $this->db->commit();
+
         return true;
+
+    } catch (Throwable $e) {
+
+        // Batalkan seluruh perubahan jika terjadi kegagalan
+        $this->db->rollback();
+
+        return false;
     }
+}
 
 
     // SECTION 4: FUNGSI UMUM

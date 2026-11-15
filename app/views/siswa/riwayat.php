@@ -92,7 +92,6 @@ $ratingFailed = isset($_GET['rating']) && $_GET['rating'] === 'failed';
         rel="stylesheet">
 
     <script>
-
         tailwind.config = {
             darkMode: 'class',
 
@@ -104,11 +103,9 @@ $ratingFailed = isset($_GET['rating']) && $_GET['rating'] === 'failed';
                 }
             }
         }
-
     </script>
 
     <style>
-
         @keyframes fadeIn {
 
             from {
@@ -144,7 +141,6 @@ $ratingFailed = isset($_GET['rating']) && $_GET['rating'] === 'failed';
         .dark ::-webkit-scrollbar-thumb {
             background: #475569;
         }
-
     </style>
 
 </head>
@@ -635,7 +631,6 @@ $ratingFailed = isset($_GET['rating']) && $_GET['rating'] === 'failed';
                                 $iconClass = "fa-check-circle text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40";
 
                                 $statusBadge = "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50";
-
                             } elseif ($status == 'Proses' || $status == 'Diproses') {
 
                                 $borderColor = "border-sky-400";
@@ -643,7 +638,6 @@ $ratingFailed = isset($_GET['rating']) && $_GET['rating'] === 'failed';
                                 $iconClass = "fa-sync-alt fa-spin text-sky-500 bg-sky-50 dark:bg-sky-950/40";
 
                                 $statusBadge = "bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-400 border border-sky-200 dark:border-sky-800/50";
-
                             }
 
                         ?>
@@ -1506,8 +1500,6 @@ $ratingFailed = isset($_GET['rating']) && $_GET['rating'] === 'failed';
     <!-- =============================== -->
 
     <script>
-
-
         // ===============================
         // SIDEBAR MOBILE
         // ===============================
@@ -1643,9 +1635,9 @@ $ratingFailed = isset($_GET['rating']) && $_GET['rating'] === 'failed';
             document.getElementById('ratingIdAspirasi').value = idAspirasi;
 
 
-            currentRating = rating
-                ? parseFloat(rating)
-                : 0;
+            currentRating = rating ?
+                parseFloat(rating) :
+                0;
 
 
             document.getElementById('ratingInput').value = currentRating;
@@ -1884,9 +1876,9 @@ $ratingFailed = isset($_GET['rating']) && $_GET['rating'] === 'failed';
 
 
                     let hoverRating =
-                        mouseX < rect.width / 2
-                            ? value - 0.5
-                            : value;
+                        mouseX < rect.width / 2 ?
+                        value - 0.5 :
+                        value;
 
 
                     tampilkanBintang(hoverRating);
@@ -1913,9 +1905,9 @@ $ratingFailed = isset($_GET['rating']) && $_GET['rating'] === 'failed';
 
 
                     currentRating =
-                        mouseX < rect.width / 2
-                            ? value - 0.5
-                            : value;
+                        mouseX < rect.width / 2 ?
+                        value - 0.5 :
+                        value;
 
 
                     ratingInput.value =
@@ -2098,8 +2090,7 @@ $ratingFailed = isset($_GET['rating']) && $_GET['rating'] === 'failed';
                     );
 
 
-                    window.history.replaceState(
-                        {},
+                    window.history.replaceState({},
                         document.title,
                         url
                     );
@@ -2111,7 +2102,6 @@ $ratingFailed = isset($_GET['rating']) && $_GET['rating'] === 'failed';
             }, 2200);
 
         }
-
     </script>
 
 </body>
